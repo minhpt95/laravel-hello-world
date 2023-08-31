@@ -1,0 +1,19 @@
+before_script:
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+image: docker:latest
+stages:
+  - build-app
+laravel-hello-world:
+  stage: build-app
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      changes:
+        - .gitlab-ci.yml
+        - ./**
+      variables:
+        TARGET_IMAGE: registry.gitlab.com/laravel/lavarel-hello-world:latest
+  variables:
+    DOCKERFILE_PATH: Dockerfile
+  script:
+    - docker build --pull -t $TARGET_IMAGE hello-world -f $DOCKERFILE_PATH
+    - docker push -q $TARGET_IMAGE
